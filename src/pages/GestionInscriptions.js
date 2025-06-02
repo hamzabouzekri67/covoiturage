@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const GestionInscriptions = () => {
+    const navigate = useNavigate();
+      const user = JSON.parse(localStorage.getItem("user"))??null;
+      useEffect(() => {
+      if (!user || user.role !== "admin") {
+        navigate('/');
+      }
+    }, [user, navigate]);
    const [error, setError] = useState(null);
   const [inscriptions, setInscriptions] = useState([]);
   const [loading, setLoading] = useState(true); // حالة التحميل
@@ -79,7 +87,7 @@ const handleRejection = async (id) => {
     console.error(error);
   }
 };
-
+ if (!user || user.role !== "admin") return
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Gestion des Inscriptions</h1>

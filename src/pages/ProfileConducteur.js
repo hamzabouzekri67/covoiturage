@@ -12,6 +12,33 @@ const ProfileConducteur = () => {
     }
   }, [user, navigate]);
 
+   const handleDeleteAccount = async () => {
+    const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.");
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/v1/users/profile/delete/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        localStorage.removeItem("user");
+        alert("Compte supprimé avec succès.");
+        navigate('/');
+        window.location.href = "/"
+      } else {
+        alert("Une erreur est survenue lors de la suppression du compte.");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression :", error);
+      alert("Erreur de connexion au serveur.");
+    }
+  };
+
   if (!user || user.role === "passager"|| user.role === "admin") return null;
   return (
     <div style={styles.container}>
@@ -44,6 +71,9 @@ const ProfileConducteur = () => {
           <span style={styles.infoLabel}>Couleur:</span>
           <span>Blanche</span>
         </div>
+         <button onClick={handleDeleteAccount} style={styles.deleteButton}>
+          🗑️ Supprimer mon compte
+        </button>
       </div>
     </div>
   );
@@ -113,7 +143,18 @@ const styles = {
     fontWeight: 'bold',
     color: '#2c3e50',
     minWidth: '150px'
-  }
+  },
+   deleteButton: {
+    marginTop: '20px',
+    padding: '10px 20px',
+    backgroundColor: '#E74C3CFF',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
+  },
 };
 
 export default ProfileConducteur;

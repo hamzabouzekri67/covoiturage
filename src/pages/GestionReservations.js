@@ -33,7 +33,9 @@ const GestionReservations = () => {
 
        return
       }
-       const data = await response.json();         
+       const data = await response.json();     
+       console.log(data);
+           
        setReservations(data["data"]); 
        const today = new Date().toISOString().split('T')[0];
         const todayReservations = data["data"].filter(res =>

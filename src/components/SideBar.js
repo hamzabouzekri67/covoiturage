@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 const SideBar = () => {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"))??null; 
-  
+   
   if (location.pathname !== '/') {
     return null;
   }
@@ -21,7 +21,7 @@ const SideBar = () => {
           <button style={styles.button}>🔍 Rechercher un trajet</button>
         </Link>
             
-          {user != null && user.role !== 'admin' && (
+          {user != null && (user.role !== 'admin' && user.role !== 'conducteur') && (
               <>
                <Link to="/proposer-trajet" style={styles.link}>
                   <button style={styles.button}>🚗 Proposer un trajet</button>

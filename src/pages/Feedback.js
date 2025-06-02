@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from "react";
+import { Link, useNavigate } from 'react-router-dom';
+
 
 const Feedback = () => {
+  const user = JSON.parse(localStorage.getItem("user")); 
+  const navigate = useNavigate()
+  useEffect(()=>{
+    if (!user || user.role === "conducteur" || user.role === "admin") {
+      navigate("/")
+    }
+
+  })
   const [formData, setFormData] = useState({
     nom: '',
     email: '',
@@ -32,8 +42,8 @@ const Feedback = () => {
 
   const validateForm = () => {
     const errors = {
-      nom: !formData.nom.trim(),
-      email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email),
+     // nom: !formData.nom.trim(),
+      //email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email),
       message: !formData.message.trim()
     };
     setFormErrors(errors);
@@ -50,16 +60,16 @@ const Feedback = () => {
     }
 
     setIsSubmitting(true);
-
+   // console.log(formData);
+    
     try {
-      const response = await fetch('http://localhost:5000/api/v1/feedbacks', {
+      const response = await fetch(`http://localhost:5000/api/v1/feedbacks/${user.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
-          name: formData.nom,
-          email: formData.email,
           content: formData.message
         })
       });
@@ -76,11 +86,13 @@ const Feedback = () => {
       setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (err) {
       console.error("Erreur lors de l'envoi:", err);
-      setError(err.message || "Une erreur est survenue lors de l'envoi");
+      setError("Une erreur est survenue lors de l'envoi");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+   if (!user || user.role === "conducteur" || user.role === "admin")return
 
   return (
     <div style={styles.container}>
@@ -102,9 +114,12 @@ const Feedback = () => {
         {/* Champ Nom */}
         <div style={styles.formGroup}>
           <label htmlFor="nom" style={styles.label}>
-            Nom complet *
+            Nom complet
           </label>
-          <input
+           <label htmlFor="nom" style={styles.labelTitle}>
+            {user.nom}  {user.prenom}
+          </label>
+          {/* <input
             type="text"
             id="nom"
             name="nom"
@@ -116,7 +131,7 @@ const Feedback = () => {
               ...(formErrors.nom && styles.inputError)
             }}
             required
-          />
+          /> */}
           {formErrors.nom && (
             <span style={styles.errorText}>Ce champ est obligatoire</span>
           )}
@@ -125,21 +140,11 @@ const Feedback = () => {
         {/* Champ Email */}
         <div style={styles.formGroup}>
           <label htmlFor="email" style={styles.label}>
-            Adresse email *
+            Adresse email
           </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="votre@email.com"
-            value={formData.email}
-            onChange={handleChange}
-            style={{
-              ...styles.input,
-              ...(formErrors.email && styles.inputError)
-            }}
-            required
-          />
+           <label htmlFor="nom" style={styles.labelTitle}>
+            {user.email}
+          </label>
           {formErrors.email && (
             <span style={styles.errorText}>Veuillez entrer une adresse email valide</span>
           )}
@@ -216,6 +221,13 @@ const styles = {
     marginBottom: '1.2rem',
   },
   label: {
+    display: 'block',
+    marginBottom: '0.5rem',
+    fontWeight: '200',
+    color: '#444',
+    fontSize: '0.95rem',
+  },
+  labelTitle: {
     display: 'block',
     marginBottom: '0.5rem',
     fontWeight: '600',

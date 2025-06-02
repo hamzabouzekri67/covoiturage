@@ -1,8 +1,17 @@
-import React, { useState } from "react";
-import {Link, useNavigate } from "react-router-dom";
+import React, { useState , useEffect} from "react";
+import { Link, useNavigate } from 'react-router-dom';
+
 
 
 function RechercheTrajet() {
+  const user = JSON.parse(localStorage.getItem("user")); 
+  const navigate = useNavigate()
+  useEffect(()=>{
+    if (!user || user.role === "conducteur") {
+      navigate("/")
+    }
+
+  })
   const [formData, setFormData] = useState({
     depart: "",
     destination: "",
@@ -23,10 +32,9 @@ function RechercheTrajet() {
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
-   const user = JSON.parse(localStorage.getItem("user")); 
+   
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -317,6 +325,9 @@ function RechercheTrajet() {
       "100%": { transform: "rotate(360deg)" }
     }
   };
+
+
+  if(!user || user.role === "conducteur") return
 
   return (
     <div style={styles.container}>

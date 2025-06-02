@@ -6,6 +6,13 @@ import { useNavigate } from 'react-router-dom';
 
 
 const GestionTrajets = () => {
+    const navigate = useNavigate();
+      const user = JSON.parse(localStorage.getItem("user"))??null;
+      useEffect(() => {
+      if (!user || user.role !== "admin") {
+        navigate('/');
+      }
+    }, [user, navigate]);
   const [trajets, seTrajets] = useState([]);
   const [trajetsactif, seTrajetsactif] = useState([]);
   const [trajetspending, seTrajetsapending] = useState([]);
@@ -13,7 +20,6 @@ const GestionTrajets = () => {
   const [trajetscompleted, seTrajetscompleted] = useState([]);
   const [filtre, setFiltre] = useState("Tous les statuts");
   const [rechercheTexte, setRechercheTexte] = useState("");
-  const navigate = useNavigate();
 
 
   useEffect(()=>{
@@ -132,6 +138,8 @@ const handleCompleted = async (id) => {
     console.error('Erreur lors de l’annulation:', err);
   }
 };
+
+if (!user || user.role !== "admin")return
 
   return (
   <div style={styles.container}>
