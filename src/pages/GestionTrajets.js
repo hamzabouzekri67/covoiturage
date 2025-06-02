@@ -48,9 +48,9 @@ const GestionTrajets = () => {
         const trajetsEnAttente = data["data"].filter((e) => e.status === "pending");
         seTrajetsapending(trajetsEnAttente)
         const trajetsRejetés = data["data"].filter((e) => e.status === "rejected");
-        seTrajetsrejected(trajetsRejetés); // تأكد أن لديك useState لـ seTrajetsrejected
+        seTrajetsrejected(trajetsRejetés);
          const trajetsTerminés = data["data"].filter((e) => e.status === "completed");
-         seTrajetscompleted(trajetsTerminés); // تأكد أن لديك useState لـ seTrajetscompleted
+         seTrajetscompleted(trajetsTerminés);
 
     }
 
