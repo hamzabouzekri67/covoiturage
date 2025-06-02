@@ -7,7 +7,7 @@ function RechercheTrajet() {
   const user = JSON.parse(localStorage.getItem("user")); 
   const navigate = useNavigate()
   useEffect(()=>{
-    if (!user || user.role === "conducteur") {
+    if (user && user.role === "conducteur") {
       navigate("/")
     }
 
@@ -327,7 +327,8 @@ function RechercheTrajet() {
   };
 
 
-  if(!user || user.role === "conducteur") return
+  if (user && user.role === "conducteur") return;
+
 
   return (
     <div style={styles.container}>
@@ -606,6 +607,7 @@ function RechercheTrajet() {
       )}
     </div>
   );
+
 }
 
 export default RechercheTrajet;

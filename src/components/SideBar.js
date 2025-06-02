@@ -6,7 +6,6 @@ const SideBar = () => {
   const user = JSON.parse(localStorage.getItem("user"))??null; 
    
   if (location.pathname !== '/') {
-    return null;
   }
 
   return (
@@ -20,7 +19,6 @@ const SideBar = () => {
         <Link to="/rechercher-trajet" style={styles.link}>
           <button style={styles.button}>🔍 Rechercher un trajet</button>
         </Link>
-            
           {user != null && (user.role !== 'admin' && user.role !== 'conducteur') && (
               <>
                <Link to="/proposer-trajet" style={styles.link}>
