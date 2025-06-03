@@ -41,6 +41,8 @@ const GestionTrajets = () => {
        return
       }
        const data = await response.json(); 
+                
+
         
         seTrajets(data["data"]); 
         const trajetsAcceptés = data["data"].filter((e) => e.status === "accepted");
@@ -48,9 +50,9 @@ const GestionTrajets = () => {
         const trajetsEnAttente = data["data"].filter((e) => e.status === "pending");
         seTrajetsapending(trajetsEnAttente)
         const trajetsRejetés = data["data"].filter((e) => e.status === "rejected");
-        seTrajetsrejected(trajetsRejetés);
+        seTrajetsrejected(trajetsRejetés); 
          const trajetsTerminés = data["data"].filter((e) => e.status === "completed");
-         seTrajetscompleted(trajetsTerminés);
+         seTrajetscompleted(trajetsTerminés); 
 
     }
 

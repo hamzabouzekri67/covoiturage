@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 
 const MotDePasseOublie = () => {
   const [email, setEmail] = useState('');
@@ -9,28 +10,70 @@ const MotDePasseOublie = () => {
   const [codeVerif, setCodeVerif] = useState('');
   const [nouveauMdp, setNouveauMdp] = useState('');
   const [confirmationMdp, setConfirmationMdp] = useState('');
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
 
-  const envoyerCodeVerification = () => {
-    // Simulation d'envoi de code
+  
+
+  var envoyerCodeVerification = async() => {
     console.log(methode === 'email' 
       ? `Code envoyé à ${email}` 
       : `SMS envoyé au ${telephone}`);
-    setEtape(2);
+     //  setError(null)
+      try {
+         const response = await fetch('http://localhost:5000/api/v1/users/forgetPass', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body:JSON.stringify({
+            "telephone":telephone
+          }),
+         
+        });
+  
+         if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Erreur lors de la réservation');
+  
+        }
+        const data = await response.json(); 
+        if (data.status === "failed") {
+          setError("Utilisater n'existe pas ou numero invalid")
+          return
+        }
+        setData(data.data)
+        setEtape(2);
+      } catch (error) {
+        console.error("Erreur fetch :", error.message);
+      }
   };
 
-  const verifierCode = () => {
-    // Simulation de vérification
-    if (codeVerif === '123456') { // Code test
+  const verifierCode = (data) => {
+    //Simulation de vérification
+    console.log(data);
+    if(codeVerif.length < 6){
+      setError('Code incorrect. Essayez à nouveau.');
+    }
+    else if (codeVerif === data.otp) { // Code test
       setEtape(3);
+      setError(null)
     } else {
-      alert('Code incorrect. Essayez à nouveau.');
+      setError('Code incorrect. Essayez à nouveau.');
     }
   };
 
   const reinitialiserMdp = () => {
+    console.log(nouveauMdp);
+        console.log(confirmationMdp);
+
+    
     if (nouveauMdp !== confirmationMdp) {
-      alert('Les mots de passe ne correspondent pas');
+          setError('Mot de passe réinitialisé avec succès!');
+
       return;
+    
     }
     alert('Mot de passe réinitialisé avec succès!');
     // Ici, ajouter la logique pour enregistrer le nouveau mot de passe
@@ -39,7 +82,11 @@ const MotDePasseOublie = () => {
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Réinitialisation du mot de passe</h1>
-      
+      {error && (
+        <div style={styles.errorMessage}>
+          {error}
+        </div>
+      )}
       {etape === 1 && (
         <div style={styles.formContainer}>
           <div style={styles.choixMethode}>
@@ -115,9 +162,8 @@ const MotDePasseOublie = () => {
           </div>
 
           <button 
-            onClick={verifierCode}
+            onClick={()=>verifierCode(data)}
             style={styles.button}
-            disabled={codeVerif.length !== 6}
           >
             Vérifier le code
           </button>
@@ -160,9 +206,9 @@ const MotDePasseOublie = () => {
           </div>
 
           <button 
-            onClick={reinitialiserMdp}
+            onClick={()=>reinitialiserMdp()}
             style={styles.button}
-            disabled={!nouveauMdp || nouveauMdp !== confirmationMdp}
+           // disabled={!nouveauMdp || nouveauMdp !== confirmationMdp}
           >
             Réinitialiser le mot de passe
           </button>
@@ -235,6 +281,15 @@ const styles = {
   },
   telephoneInput: {
     display: 'flex'
+  },
+  errorMessage: {
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    padding: '0.75rem 1.25rem',
+    borderRadius: '4px',
+    marginBottom: '1rem',
+    width: '100%',
+    textAlign: 'center',
   },
   indicator: {
     padding: '12px',

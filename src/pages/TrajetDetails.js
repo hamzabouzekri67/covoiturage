@@ -11,7 +11,7 @@ const TrajetDetails = () => {
     fetch(`http://localhost:5000/api/v1/trajets/${id}`)
       .then(res => res.json())
       .then(data =>{
-        console.log(data.data);
+        console.log(id);
         setTrajet(data.data)
         
         

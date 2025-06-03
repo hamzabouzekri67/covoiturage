@@ -9,14 +9,15 @@ const MesTrajets = () => {
     const fetchTrajets = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
-        const response = await fetch(`http://localhost:5000/api/v1/trajets/${user.id}`, {
+        const response = await fetch(`http://localhost:5000/api/v1/trajets/conducteur/${user.id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
-
+            console.log(user.id);
+            
         if (!response.ok) {
           throw new Error("Erreur lors de la récupération des trajets");
         }
