@@ -43,9 +43,7 @@ function TopBar() {
     navigate('/');
   };
 
-  const getProfilePath = () => {
-    console.log(userType);
-    
+  const getProfilePath = () => {    
     switch(userType) {
       case 'admin': return '/profile-admin';
       case 'conducteur': return '/profile-conducteur';

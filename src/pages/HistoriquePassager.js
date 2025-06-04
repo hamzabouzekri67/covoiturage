@@ -1,89 +1,137 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const HistoriquePassager = () => {
-  const trajetsPasses = [
-    {
-      id: 1,
-      trajet: "Tunis → Sousse",
-      date: "10/06/2023",
-      conducteur: "Ali Ben Salah",
-      note: 4,
-      commentaire: "Très bon trajet, conducteur ponctuel"
-    },
-    {
-      id: 2,
-      trajet: "Sfax → Gabès",
-      date: "05/06/2023",
-      conducteur: "Fatma Ben Mohamed",
-      note: 5,
-      commentaire: "Excellent service, voiture très confortable"
-    }
-  ];
+const EditProfilePassager = () => {
+  const user = JSON.parse(localStorage.getItem("user"))
+  const [profile, setProfile] = useState({
+    nom: user.nom,
+    prenom:  user.prenom,
+    email:  user.email,
+    telephone:  user.telephone,
+  });
 
-  const renderEtoiles = (note) => {
-    return (
-      <span style={{ color: '#f39c12', fontSize: '18px' }}>
-        {'★'.repeat(note)}{'☆'.repeat(5 - note)}
-      </span>
-    );
+  const [loading, setLoading] = useState(false);
+const [submitSuccess, setSubmitSuccess] = useState("");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      [name]: value
+    }));
+  };
+
+  const handleSave = async() => {
+    setLoading(true);
+    const response = await fetch(`http://localhost:5000/api/v1/users/editProfile/${user.id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body:JSON.stringify({
+            "nom": profile.nom,
+            "prenom":  profile.prenom,
+            "email":  profile.email,
+            "telephone":  profile.telephone,
+          }),
+         
+        });
+  
+         if (!response.ok) {
+          const errorData = await response.json();
+          setLoading(false);
+          throw new Error(errorData.message || 'Erreur lors de la réservation');
+
+  
+        }
+
+          const data = await response.json();     
+          localStorage.setItem('user', JSON.stringify(data.data));
+          setLoading(false);
+          setSubmitSuccess("true")
+          
+
+    
   };
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Mon Historique de Trajets</h1>
+      <h1 style={styles.title}>Modifier Mon Profil</h1>
       <Link to="/profile-passager" style={styles.backButton}>
         ← Retour au profil
       </Link>
 
-      <div style={styles.filtres}>
-        <select style={styles.selectFiltre}>
-          <option>Tous les trajets</option>
-          <option>Ce mois</option>
-          <option>Ce trimestre</option>
-        </select>
+       {submitSuccess && (
+        <div style={styles.successMessage}>
+              ✅ Enregistrement réussi. Votre profil a été mis à jour
+        </div>
+      )}
+
+      <div style={styles.formGroup}>
+        <label style={styles.label}>Prénom</label>
+        <input
+          type="text"
+          name="prenom"
+          value={profile.prenom}
+          onChange={handleChange}
+          style={styles.input}
+        />
       </div>
 
-      <div style={styles.trajetsList}>
-        {trajetsPasses.map(trajet => (
-          <div key={trajet.id} style={styles.trajetCard}>
-            <div style={styles.trajetHeader}>
-              <h3 style={styles.trajetTitre}>{trajet.trajet}</h3>
-              <span style={styles.trajetDate}>{trajet.date}</span>
-            </div>
-            
-            <div style={styles.trajetDetails}>
-              <p>
-                <span style={styles.label}>Conducteur: </span>
-                {trajet.conducteur}
-              </p>
-              <p>
-                <span style={styles.label}>Note: </span>
-                {renderEtoiles(trajet.note)}
-              </p>
-              {trajet.commentaire && (
-                <p style={styles.commentaire}>
-                  <span style={styles.label}>Avis: </span>
-                  "{trajet.commentaire}"
-                </p>
-              )}
-            </div>
-            
-            <div style={styles.actions}>
-              <button style={styles.btnFeedback}>
-                {trajet.commentaire ? 'Modifier avis' : 'Laisser un avis'}
-              </button>
-            </div>
-          </div>
-        ))}
+      <div style={styles.formGroup}>
+        <label style={styles.label}>Nom</label>
+        <input
+          type="text"
+          name="nom"
+          value={profile.nom}
+          onChange={handleChange}
+          style={styles.input}
+        />
+      </div>
+
+      <div style={styles.formGroup}>
+        <label style={styles.label}>Email</label>
+        <input
+          type="email"
+          name="email"
+          value={profile.email}
+          onChange={handleChange}
+          style={styles.input}
+        />
+      </div>
+
+      <div style={styles.formGroup}>
+        <label style={styles.label}>Téléphone</label>
+        <input
+          type="tel"
+          name="telephone"
+          value={profile.telephone}
+          onChange={handleChange}
+          style={styles.input}
+        />
+      </div>
+
+      <div style={styles.actions}>
+        <button
+          onClick={handleSave}
+          style={{
+            ...styles.btnSave,
+            opacity: loading ? 0.7 : 1,
+            cursor: loading ? 'not-allowed' : 'pointer'
+          }}
+          disabled={loading}
+        >
+          {loading ? 'Enregistrement...' : 'Enregistrer les modifications'}
+        </button>
       </div>
     </div>
   );
+
 };
 
 const styles = {
   container: {
-    maxWidth: '800px',
+    maxWidth: '600px',
     margin: '0 auto',
     padding: '20px',
     fontFamily: "'Segoe UI', Tahoma, sans-serif",
@@ -102,67 +150,43 @@ const styles = {
     textDecoration: 'none',
     fontWeight: 'bold'
   },
-  filtres: {
-    marginBottom: '25px'
-  },
-  selectFiltre: {
-    padding: '10px 15px',
-    border: '1px solid #ddd',
-    borderRadius: '5px',
-    width: '100%',
-    maxWidth: '300px'
-  },
-  trajetsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px'
-  },
-  trajetCard: {
-    backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-  },
-  trajetHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '15px',
-    flexWrap: 'wrap',
-    gap: '10px'
-  },
-  trajetTitre: {
-    margin: '0',
-    color: '#2c3e50'
-  },
-  trajetDate: {
-    color: '#7f8c8d'
-  },
-  trajetDetails: {
-    marginBottom: '15px'
+  formGroup: {
+    marginBottom: '20px'
   },
   label: {
-    color: '#7f8c8d',
+    display: 'block',
+    marginBottom: '8px',
+    color: '#2c3e50',
     fontWeight: 'bold'
   },
-  commentaire: {
-    fontStyle: 'italic',
-    color: '#34495e',
-    marginTop: '10px'
+  input: {
+    width: '100%',
+    padding: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    fontSize: '16px'
   },
   actions: {
-    display: 'flex',
-    justifyContent: 'flex-end'
+    textAlign: 'right'
   },
-  btnFeedback: {
+  btnSave: {
     padding: '10px 20px',
-    backgroundColor: '#f39c12',
+    backgroundColor: '#2ecc71',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
-    cursor: 'pointer',
-    fontWeight: 'bold'
-  }
+    fontWeight: 'bold',
+    cursor: 'pointer'
+  },
+  successMessage: {
+    backgroundColor: '#d4edda',
+    color: '#155724',
+    padding: '0.75rem 1.25rem',
+    borderRadius: '4px',
+    marginBottom: '1rem',
+    width: '100%',
+    textAlign: 'center',
+  },
 };
 
-export default HistoriquePassager;
+export default EditProfilePassager;

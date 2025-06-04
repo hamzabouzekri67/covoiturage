@@ -1,6 +1,6 @@
-import React, {useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import React, {useState } from 'react';
+import { Link,useNavigate } from 'react-router-dom';
+//import { ToastContainer, toast } from 'react-toastify';
 
 const MotDePasseOublie = () => {
   const [email, setEmail] = useState('');
@@ -12,7 +12,7 @@ const MotDePasseOublie = () => {
   const [confirmationMdp, setConfirmationMdp] = useState('');
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
-
+  const navigate = useNavigate();
   
 
   var envoyerCodeVerification = async() => {
@@ -64,20 +64,53 @@ const MotDePasseOublie = () => {
     }
   };
 
-  const reinitialiserMdp = () => {
-    console.log(nouveauMdp);
-        console.log(confirmationMdp);
+      const reinitialiserMdp = async(id) => {
+      if (!nouveauMdp || !confirmationMdp) {
+        setError("Veuillez remplir tous les champs.");
+        return;
+      }
 
-    
-    if (nouveauMdp !== confirmationMdp) {
-          setError('Mot de passe réinitialisé avec succès!');
+      if (nouveauMdp !== confirmationMdp) {
+        setError("Les mots de passe ne correspondent pas.");
+        return;
+      }
 
-      return;
-    
-    }
-    alert('Mot de passe réinitialisé avec succès!');
-    // Ici, ajouter la logique pour enregistrer le nouveau mot de passe
-  };
+      if (nouveauMdp.length < 8) {
+        setError("Le mot de passe doit contenir au moins 8 caractères.");
+        return;
+      }
+
+      const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])/;
+      if (!regex.test(nouveauMdp)) {
+        setError("Le mot de passe doit contenir des lettres et des chiffres.");
+        return;
+      }
+
+       setError("");
+
+        const response = await fetch(`http://localhost:5000/api/v1/users/updatePass/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body:JSON.stringify({
+            "newPassword":nouveauMdp
+          }),
+         
+        });
+  
+         if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Erreur lors de la réservation');
+  
+        }
+
+      alert("Mot de passe réinitialisé avec succès!");
+      navigate("/login")
+
+      };
+
 
   return (
     <div style={styles.container}>
@@ -206,7 +239,7 @@ const MotDePasseOublie = () => {
           </div>
 
           <button 
-            onClick={()=>reinitialiserMdp()}
+            onClick={()=>reinitialiserMdp(data._id)}
             style={styles.button}
            // disabled={!nouveauMdp || nouveauMdp !== confirmationMdp}
           >

@@ -51,7 +51,7 @@ const ProfilePassager = () => {
       <div style={styles.buttonContainer}>
         <Link to="/" style={styles.button}>Accueil</Link>
         <Link to="/mes-reservations" style={styles.button}>Réservations</Link>
-        <Link to="/historique-passager" style={styles.button}>Historique</Link>
+        <Link to="/historique-passager" style={styles.button}>Modifier Mon Profil</Link>
         <Link to="/rechercher-trajet" style={styles.link}>
           <button style={styles.button}>🔍 Rechercher un trajet</button>
         </Link>
